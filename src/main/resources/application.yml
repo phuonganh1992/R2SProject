@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:5000}
 spring:
   datasource:
     url: ${JDBC_DATABASE_URL}
@@ -37,6 +37,7 @@ springdoc:
   swagger-ui:
     path: /swagger-ui-custom.html
     operations-sorter: desc
+
 
 
 

@@ -14,16 +14,6 @@ public class RoleService implements IRoleService {
     private IRoleRepository roleRepository;
 
     @Override
-    public Iterable<Role> findAll() {
-        return roleRepository.findAll();
-    }
-
-    @Override
-    public Optional<Role> findById(UUID id) {
-        return roleRepository.findById(id);
-    }
-
-    @Override
     public Role save(Role role) {
         return roleRepository.save(role);
     }

@@ -10,9 +10,15 @@ import com.example.food.dto.command.UserRegisterCommand;
 import com.example.food.dto.view.JwtView;
 import com.example.food.dto.view.Response;
 import com.example.food.dto.view.ResponseBody;
+import com.example.food.dto.view.UserView;
 import com.example.food.security.jwt.JwtTokenUserProvider;
 import com.example.food.security.principal.UserPrinciple;
 import com.example.food.service.user.UserService;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +34,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Optional;
 
-@RequestMapping("/auths")
+@RequestMapping("/api/auths")
 @RestController
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
@@ -38,8 +44,9 @@ public class AuthEndpoint {
     private final JwtTokenUserProvider jwtTokenUserProvider;
     private final PasswordEncoder passwordEncoder;
 
+    @Operation(description = "Khách hàng được phép đăng ký")
     @PostMapping("/register")
-    public ResponseEntity<ResponseBody> register(@RequestBody UserRegisterCommand command) {
+    public ResponseEntity<ResponseBody<UserView>> register(@RequestBody UserRegisterCommand command) {
         ValidationErrorResponse error = new ValidationErrorResponse();
         try {
             return new ResponseEntity<>(new ResponseBody(Response.SUCCESS, userService.register(command)), HttpStatus.CREATED);
@@ -55,8 +62,9 @@ public class AuthEndpoint {
         }
     }
 
+    @Operation(description = "Khách hàng đăng nhập vào được hệ thống")
     @PostMapping("/login")
-    public ResponseEntity<ResponseBody> login(@RequestBody UserLoginCommand command) {
+    public ResponseEntity<ResponseBody<JwtView>> login(@RequestBody UserLoginCommand command) {
         Optional<User> optionalUser = userService.findFirstByUsername(command.getUsername());
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(command.getUsername(), command.getPassword()));

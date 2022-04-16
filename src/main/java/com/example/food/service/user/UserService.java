@@ -4,6 +4,7 @@ import com.example.food.advice.CommonException;
 import com.example.food.constant.Constant;
 import com.example.food.domain.Role;
 import com.example.food.domain.User;
+import com.example.food.dto.criteria.DefaultQueryCriteria;
 import com.example.food.dto.command.UserRegisterCommand;
 import com.example.food.dto.view.Response;
 import com.example.food.dto.view.UserView;
@@ -13,6 +14,9 @@ import com.example.food.security.principal.UserPrinciple;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,10 +26,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -82,14 +84,23 @@ public class UserService implements IUserService {
         return userRepository.findFirstByUsername(username);
     }
 
-    @Override
-    public Iterable<User> findAll() {
-        return null;
+    public List<UserView> findAll(DefaultQueryCriteria criteria) {
+        Pageable pageable= PageRequest.of(criteria.getPage()-1, criteria.getSize(), criteria.getSortable());
+        Page<User> pageUsers = userRepository.findAll(pageable);
+        if(pageUsers.getTotalElements()==0) {
+            throw new CommonException(Response.OBJECT_NOT_FOUND, Response.OBJECT_NOT_FOUND.getResponseMessage());
+        }
+        return pageUsers.getContent().stream().map(UserView::from)
+                .collect(Collectors.toList());
+
     }
 
-    @Override
-    public Optional<User> findById(UUID id) {
-        return userRepository.findById(id);
+    public UserView findById(UUID id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(!optionalUser.isPresent()){
+            throw new CommonException(Response.OBJECT_NOT_FOUND, Response.OBJECT_NOT_FOUND.getResponseMessage());
+        }
+        else return UserView.from(optionalUser.get());
     }
 
     @Override
@@ -99,7 +110,7 @@ public class UserService implements IUserService {
 
     @Override
     public void delete(UUID id) {
-        Optional<User> userOptional = findById(id);
+        Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) userRepository.deleteById(id);
         else throw new CommonException(Response.OBJECT_NOT_FOUND, Response.OBJECT_NOT_FOUND.getResponseMessage());
     }

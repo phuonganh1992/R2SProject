@@ -1,6 +1,7 @@
 package com.example.food.dto.view;
 
 import com.example.food.domain.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Builder
 public class UserView implements Serializable {
     private UUID id;
+    @Schema(description = "username")
     private String username;
     private String name;
     private String email;

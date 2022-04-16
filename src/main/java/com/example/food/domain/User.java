@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
@@ -21,7 +22,7 @@ import java.util.UUID;
 })
 @NoArgsConstructor
 @AllArgsConstructor
-public class User{
+public class User implements Serializable {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.IDENTITY)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")

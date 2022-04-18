@@ -62,13 +62,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests().antMatchers(
                         "/",
-                        "/auth/login",
-                        "/auth/register",
-                        "/auth/merchants/login",
-                        "/auth/merchants/register",
+                        "/api/auth/login",
+                        "/api/auth/register",
+                        "/api/auth/merchants/login",
+                        "/api/auth/merchants/register",
                         "/home/**",
-                        "/foods/**",
-                        "/categories/**",
+                        "/api/foods/**",
+                        "/api/categories/**",
                         "/**"
                 ).permitAll()
                 .anyRequest().authenticated()

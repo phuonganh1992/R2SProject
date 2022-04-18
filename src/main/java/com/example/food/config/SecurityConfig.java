@@ -1,6 +1,7 @@
 package com.example.food.config;
 
 import com.example.food.security.jwt.JwtAuthenticationFilter;
+import com.example.food.security.jwt.RestAuthenticationEntryPoint;
 import com.example.food.service.user.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -34,15 +35,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManager();
     }
 
-//    @Bean
-//    public RestAuthenticationEntryPoint restServicesEntryPoint() {
-//        return new RestAuthenticationEntryPoint();
-//    }
-//
-//    @Bean
-//    public CustomAccessDeniedHandler customAccessDeniedHandler() {
-//        return new CustomAccessDeniedHandler();
-//    }
+    @Bean
+    public RestAuthenticationEntryPoint restServicesEntryPoint() {
+        return new RestAuthenticationEntryPoint();
+    }
+
+    @Bean
+    public CustomAccessDeniedHandler customAccessDeniedHandler() {
+        return new CustomAccessDeniedHandler();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -62,16 +63,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests().antMatchers(
                         "/",
-                        "/api/auth/login",
-                        "/api/auth/register",
-                        "/api/auth/merchants/login",
-                        "/api/auth/merchants/register",
+                        "/api/auths/login",
+                        "/api/auths/register",
+                        "/api/auths/merchants/login",
+                        "/api/auths/merchants/register",
                         "/home/**",
                         "/api/foods/**",
                         "/api/categories/**",
                         "/**"
                 ).permitAll()
-                .anyRequest().authenticated()
+//                .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) //Thêm 1 lớp filter kiểm tra jwt
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

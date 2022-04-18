@@ -65,13 +65,14 @@ public class AuthEndpoint {
     @Operation(description = "Khách hàng đăng nhập vào được hệ thống")
     @PostMapping("/login")
     public ResponseEntity<ResponseBody<JwtView>> login(@RequestBody UserLoginCommand command) {
-        Optional<User> optionalUser = userService.findFirstByUsername(command.getUsername());
+//        Optional<User> optionalUser = userService.findFirstByUsername(command.getUsername());
         try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(command.getUsername(), command.getPassword()));
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(command.getUsername(), command.getPassword());
+            Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtTokenUserProvider.generateTokenLogin(authentication);
             UserPrinciple userPrinciple = (UserPrinciple) authentication.getPrincipal();
-            User currentUser = optionalUser.get();
+            User currentUser = userService.findFirstByUsername(command.getUsername()).get();
 
             if (currentUser.getStatus().equals(Constant.UserStatus.INACTIVATE)) {
                 return new ResponseEntity<>(new ResponseBody(Response.ACCOUNT_IS_LOCK, null), HttpStatus.BAD_REQUEST);
@@ -81,15 +82,15 @@ public class AuthEndpoint {
                     HttpStatus.OK);
         } catch (
                 BadCredentialsException e) {
-            if (!optionalUser.isPresent()) {
-                return new ResponseEntity<>(new ResponseBody(Response.USERNAME_NOT_FOUND, null), HttpStatus.BAD_REQUEST);
-            } else {
-                String encodePassword = optionalUser.get().getPassword();
-                if (!passwordEncoder.matches(command.getPassword(), encodePassword)) {
-                    return new ResponseEntity<>(new ResponseBody(Response.PASSWORD_INCORRECT, null), HttpStatus.BAD_REQUEST);
-                }
+//            if (!optionalUser.isPresent()) {
+//                return new ResponseEntity<>(new ResponseBody(Response.USERNAME_NOT_FOUND, null), HttpStatus.BAD_REQUEST);
+//            } else {
+//                String encodePassword = optionalUser.get().getPassword();
+//                if (!passwordEncoder.matches(command.getPassword(), encodePassword)) {
+//                    return new ResponseEntity<>(new ResponseBody(Response.PASSWORD_INCORRECT, null), HttpStatus.BAD_REQUEST);
+//                }
                 return new ResponseEntity<>(new ResponseBody(Response.OBJECT_NOT_FOUND, null), HttpStatus.FORBIDDEN);
-            }
+//            }
         }
     }
 }

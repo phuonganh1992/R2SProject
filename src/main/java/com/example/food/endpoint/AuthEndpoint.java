@@ -14,12 +14,9 @@ import com.example.food.dto.view.UserView;
 import com.example.food.security.jwt.JwtTokenUserProvider;
 import com.example.food.security.principal.UserPrinciple;
 import com.example.food.service.user.UserService;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,6 +35,7 @@ import java.util.Optional;
 @RestController
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthEndpoint {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
@@ -65,7 +63,7 @@ public class AuthEndpoint {
     @Operation(description = "Khách hàng đăng nhập vào được hệ thống")
     @PostMapping("/login")
     public ResponseEntity<ResponseBody<JwtView>> login(@RequestBody UserLoginCommand command) {
-//        Optional<User> optionalUser = userService.findFirstByUsername(command.getUsername());
+        Optional<User> optionalUser = userService.findFirstByUsername(command.getUsername());
         try {
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(command.getUsername(), command.getPassword());
             Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
@@ -80,17 +78,20 @@ public class AuthEndpoint {
             return new ResponseEntity<>(new ResponseBody(Response.SUCCESS,
                     new JwtView(currentUser.getId(), jwt, userPrinciple.getUsername(), currentUser.getName(), userPrinciple.getAuthorities())),
                     HttpStatus.OK);
+
         } catch (
                 BadCredentialsException e) {
-//            if (!optionalUser.isPresent()) {
-//                return new ResponseEntity<>(new ResponseBody(Response.USERNAME_NOT_FOUND, null), HttpStatus.BAD_REQUEST);
-//            } else {
-//                String encodePassword = optionalUser.get().getPassword();
-//                if (!passwordEncoder.matches(command.getPassword(), encodePassword)) {
-//                    return new ResponseEntity<>(new ResponseBody(Response.PASSWORD_INCORRECT, null), HttpStatus.BAD_REQUEST);
-//                }
+            log.info("lỗi authen rồi `{}`", e.getMessage());
+            if (!optionalUser.isPresent()) {
+                return new ResponseEntity<>(new ResponseBody(Response.USERNAME_NOT_FOUND, null), HttpStatus.BAD_REQUEST);
+            } else {
+                String encodePassword = optionalUser.get().getPassword();
+                if (!passwordEncoder.matches(command.getPassword(), encodePassword)) {
+                    return new ResponseEntity<>(new ResponseBody(Response.PASSWORD_INCORRECT, null), HttpStatus.BAD_REQUEST);
+                }
+
                 return new ResponseEntity<>(new ResponseBody(Response.OBJECT_NOT_FOUND, null), HttpStatus.FORBIDDEN);
-//            }
+            }
         }
     }
 }

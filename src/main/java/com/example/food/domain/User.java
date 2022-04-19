@@ -37,7 +37,7 @@ public class User implements Serializable {
     private Constant.UserStatus status;
     private Constant.ChannelName channel;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role")
     private Set<Role> roles;
 

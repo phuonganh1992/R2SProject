@@ -4,8 +4,8 @@ import com.example.food.advice.CommonException;
 import com.example.food.constant.Constant;
 import com.example.food.domain.Role;
 import com.example.food.domain.User;
-import com.example.food.dto.criteria.DefaultQueryCriteria;
 import com.example.food.dto.command.UserRegisterCommand;
+import com.example.food.dto.criteria.DefaultQueryCriteria;
 import com.example.food.dto.view.Response;
 import com.example.food.dto.view.UserView;
 import com.example.food.repository.IRoleRepository;
@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+//@Transactional
 public class UserService implements IUserService {
     @Autowired
     private IUserRepository userRepository;
@@ -44,7 +46,7 @@ public class UserService implements IUserService {
     @Autowired
     private Validator validator;
 
-
+//    @Transactional
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOptional = userRepository.findFirstByUsername(username);
@@ -80,6 +82,7 @@ public class UserService implements IUserService {
         User userSave = userRepository.save(user);
         return UserView.from(userSave);
     }
+    @Transactional
     public Optional<User> findFirstByUsername(String username){
         return userRepository.findFirstByUsername(username);
     }
